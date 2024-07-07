@@ -1,6 +1,5 @@
 [frontend]
-# this is a host level variable
-web username=raju
+web
 
 [backend]
 app
@@ -8,10 +7,3 @@ app
 [infra:children]
 frontend
 backend
-
-# this is a group level variable
-[backend:vars]
-foo=bar
-
-[all:vars]
-ansible_connection=docker
