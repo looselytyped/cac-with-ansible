@@ -1,0 +1,9 @@
+[frontend]
+web
+
+[backend]
+app
+
+[infra:children]
+frontend
+backend
