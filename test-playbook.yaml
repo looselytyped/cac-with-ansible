@@ -1,0 +1,10 @@
+- name: Install nginx
+  hosts: frontend
+  # a play connects a set of hosts, to a list of tasks
+  tasks:
+  - name: Print the value of a variable
+    ansible.builtin.debug:
+      var: username
+  - name: Ping the server
+    ansible.builtin.ping:
+      data: 'hello'
