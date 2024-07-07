@@ -4,3 +4,15 @@
     name: "nginx={{ nginx_version }}"
     state: present
     update_cache: yes
+
+- name: Create the home ssh directory
+  ansible.builtin.file:
+    path: ~/.ssh
+    state: directory
+    mode: '0700'
+
+- name: Copy public key to .ssh directory
+  copy:
+    src: sample-key.pub
+    dest: ~/.ssh
+    mode: '0644'
