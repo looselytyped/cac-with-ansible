@@ -1,2 +1,7 @@
 ---
-# handlers file for roles/nginx-configure
+- name: reload nginx
+  ansible.builtin.systemd_service:
+    name: nginx
+    state: reloaded
+    daemon_reload: true
+    enabled: true
