@@ -1,0 +1,47 @@
+plugins {
+  id 'java'
+  id 'org.springframework.boot' version '3.3.0'
+  id 'io.spring.dependency-management' version '1.1.5'
+  id "maven-publish"
+}
+
+group = 'com.looselytyped'
+version = '0.0.1-SNAPSHOT'
+
+java {
+  sourceCompatibility = '21'
+}
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+  implementation 'org.springframework.boot:spring-boot-starter-web'
+  developmentOnly 'org.springframework.boot:spring-boot-devtools'
+  testImplementation 'org.springframework.boot:spring-boot-starter-test'
+  testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test') {
+  useJUnitPlatform()
+}
+
+publishing {
+  repositories {
+    maven {
+      name = "GitHubPackages"
+      url = uri("https://maven.pkg.github.com/looselytyped/cac-with-ansible")
+      credentials {
+        username = project.findProperty("gpr.user") ?: System.getenv("USER")
+        password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
+      }
+    }
+  }
+  publications {
+    gpr(MavenPublication) {
+      artifact bootJar
+    }
+  }
+}
