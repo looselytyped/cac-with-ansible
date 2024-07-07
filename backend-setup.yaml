@@ -1,0 +1,9 @@
+- name: Install Java
+  hosts: backend
+  tasks:
+    - name: Install Java 21
+      ansible.builtin.apt:
+        name: "openjdk-21-jdk={{ java_version }}"
+        state: present
+        update_cache: yes
+      become: true
