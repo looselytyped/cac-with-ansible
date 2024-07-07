@@ -9,6 +9,8 @@
   with_items:
     - { name: 'wget', version: '1.21.2-2ubuntu1.1' }
     - { name: 'curl', version: '7.81.0-1ubuntu1.16' }
+  tags:
+    - provisioning
 
 # from https://docs.aws.amazon.com/corretto/latest/corretto-21-ug/generic-linux-install.html#debian-install-instruct
 - name: Set up repositories
@@ -17,6 +19,8 @@
     | sudo gpg --yes --dearmor -o /usr/share/keyrings/corretto-keyring.gpg
     && echo "deb [signed-by=/usr/share/keyrings/corretto-keyring.gpg] https://apt.corretto.aws stable main"
     | sudo tee /etc/apt/sources.list.d/corretto.list
+  tags:
+    - provisioning
 
 - name: Install java
   ansible.builtin.apt:
@@ -24,6 +28,8 @@
     state: present
     update_cache: yes
   become: true
+  tags:
+    - provisioning
 
 - name: Create app directory if it does not exist
   file:
