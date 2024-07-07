@@ -3,7 +3,7 @@
   tasks:
     - name: Install nginx
       ansible.builtin.apt:
-        name: nginx=1.18.0-6ubuntu14.4
+        name: "nginx={{ nginx_version }}"
         state: present
         update_cache: yes
       become: true
@@ -14,7 +14,7 @@
   tasks:
     - name: Install Java 21
       ansible.builtin.apt:
-        name: openjdk-21-jdk=21.0.3+9-1ubuntu1~22.04.1
+        name: "openjdk-21-jdk={{ java_version }}"
         state: present
         update_cache: yes
       become: true
