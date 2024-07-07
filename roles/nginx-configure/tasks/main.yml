@@ -1,0 +1,6 @@
+---
+- name: Install nginx
+  ansible.builtin.apt:
+    name: "nginx={{ nginx_version }}"
+    state: present
+    update_cache: yes

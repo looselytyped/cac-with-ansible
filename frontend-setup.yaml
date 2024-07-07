@@ -1,9 +1,6 @@
 - name: Install nginx
   hosts: frontend
-  tasks:
-    - name: Install nginx
-      ansible.builtin.apt:
-        name: "nginx={{ nginx_version }}"
-        state: present
-        update_cache: yes
-      become: true
+  become: true
+  roles:
+    - nginx-configure
+
