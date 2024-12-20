@@ -1,2 +1,2 @@
 ---
-# defaults file for roles/app-configure
+install_dir: /home/vagrant/app
