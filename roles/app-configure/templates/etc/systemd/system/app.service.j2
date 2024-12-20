@@ -1,0 +1,17 @@
+[Unit]
+Description=My Java app
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/vagrant/app
+ExecStart=/usr/bin/java \
+  -Xms499m \
+  -Xmx999m \
+  -jar cac-with-ansible-backend.jar
+TimeoutSec=15
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target

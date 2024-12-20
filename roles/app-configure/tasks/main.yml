@@ -1,7 +1,67 @@
 ---
-- name: Install Java 21
+# roles/app-configure/tasks/main.yml
+- name: Install wget
   ansible.builtin.apt:
-    name: "openjdk-21-jdk={{ java_version }}"
+    name: wget=1.21.2-2ubuntu1.1
     state: present
     update_cache: yes
+  become: true
+
+# we don't need curl, but we will install it
+# for didactic perspectives
+- name: Install curl
+  ansible.builtin.apt:
+    name: curl=7.81.0-1ubuntu1.20
+    state: present
+    update_cache: yes
+  become: true
+
+# from https://docs.aws.amazon.com/corretto/latest/corretto-21-ug/generic-linux-install.html#debian-install-instruct
+- name: Set up repositories
+  ansible.builtin.shell: >
+    wget -O - https://apt.corretto.aws/corretto.key
+    | sudo gpg --yes --dearmor -o /usr/share/keyrings/corretto-keyring.gpg
+    && echo "deb [signed-by=/usr/share/keyrings/corretto-keyring.gpg] https://apt.corretto.aws stable main"
+    | sudo tee /etc/apt/sources.list.d/corretto.list
+
+- name: Install java
+  ansible.builtin.apt:
+    name: java-22-amazon-corretto-jdk
+    state: present
+    update_cache: yes
+  become: true
+
+- name: Create app directory if it does not exist
+  file:
+    path: "{{ install_dir }}"
+    state: directory
+    owner: vagrant
+    group: vagrant
+
+- name: Install lxml via pip
+  ansible.builtin.pip:
+    name=lxml==5.2.2
+
+- name: Fetch the jar
+  community.general.maven_artifact:
+    group_id: "com.looselytyped"
+    artifact_id: "cac-with-ansible-backend"
+    version: "0.0.1-SNAPSHOT"
+    extension: jar
+    repository_url: "https://maven.pkg.github.com/looselytyped/cac-with-ansible"
+    username: 'looselytyped'
+    password: "{{ GITHUB_TOKEN }}"
+    dest: "{{ install_dir }}/cac-with-ansible-backend.jar"
+    mode: 0644
+    verify_checksum: always
+
+- name: Create systemd service file
+  template:
+    src: "etc/systemd/system/app.service.j2"
+    dest: "/etc/systemd/system/app.service"
+    mode: 0644
+  notify:
+    - restart application
+  # TODO: REMOVE THIS
+  changed_when: true
   become: true

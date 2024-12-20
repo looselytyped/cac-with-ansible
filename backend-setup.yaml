@@ -2,4 +2,3 @@
   hosts: backend
   roles:
     - app-configure
-
