@@ -1,10 +1,20 @@
 - name: Install nginx
   hosts: frontend
-  # a play connects a set of hosts, to a list of tasks
   tasks:
-  - name: Print the value of a variable
-    ansible.builtin.debug:
-      var: username
-  - name: Ping the server
-    ansible.builtin.ping:
-      data: 'hello'
+    - name: Install nginx
+      ansible.builtin.apt:
+        name: nginx=1.18.0-6ubuntu14.6
+        state: present
+        update_cache: yes
+      become: true
+
+
+- name: Install Java
+  hosts: backend
+  tasks:
+    - name: Install Java 21
+      ansible.builtin.apt:
+        name: openjdk-21-jdk=21.0.5+11-1ubuntu1~22.04
+        state: present
+        update_cache: yes
+      become: true
