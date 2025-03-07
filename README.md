@@ -20,6 +20,7 @@ You will need the following installed
 
 ### Set up
 
+- `cd docker-setup`
 - `docker build -t cac-with-ansible:1.0.0 .`
 
 ### Testing your installation
