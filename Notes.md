@@ -49,23 +49,18 @@ slidenumbers: true
 - Agentless
 
 ---
-## Discussion: Setup (See hints at the bottom if something goes wrong)
+## Discussion: Let's get started!
 
 ```bash
-# if you have NOT built the base image
-# run this at the root of my project
-docker build -t cac-with-ansible:1.0.0 docker-setup
+# Assuming your followed the instructions in the README in this repository,
+# this should list out two containers
+docker container ls --filter "NAME=app" --filter "NAME=web"
 
-# start our containers
-docker network create cac
-docker container run --rm --name web -d -t -p 8080:80 --network cac cac-with-ansible:1.0.0
-docker container run --rm --name app -d -t -p 9000:8080 --network cac cac-with-ansible:1.0.0
+# if you don't see a result, please revisit the README.md for set up instructions
 ```
 
----
-## Let's get started!
+**Why docker?**
 
-Why docker?
 This repository contains a Vagrantfile that creates VMs that you can configure with Ansible.
 However, when learning, you want a safety net, and one that you can recover from quickly.
 While VMs give you a more "real" sense of how you'd use Ansible at work, containers (which aren't really VMs) give you a mechanism to recover quickly if something goes wrong.
@@ -167,16 +162,16 @@ Ansible, by default, _looks_ for a file with the name `inventory`—if you name 
 
 ```bash
 # specify inventory file and pick a specific server
-ansible --inventory environments/development --connection=docker web -b -m command -a "cat /etc/sudoers"
+ansible --inventory environments/development --connection=docker web -b -m ansible.builtin.command -a "cat /etc/sudoers"
 # using short aliases
-ansible -i environments/development --connection=docker web -b -m command -a "cat /etc/sudoers"
+ansible -i environments/development --connection=docker web -b -m ansible.builtin.command -a "cat /etc/sudoers"
 ```
 
 You can even target a whole group of servers:
 
 ```bash
 # if there were more than one server in the "frontend" group, Ansible would connect to all of them
-ansible -i environments/development --connection=docker frontend -m ping
+ansible -i environments/development --connection=docker frontend -m ansible.builtin.ping
 ```
 
 ---
@@ -188,14 +183,14 @@ ansible -i environments/development --connection=docker frontend -m ping
 
   ```bash
   docker container run --rm --name web1 -d -t --network cac cac-with-ansible:1.0.0
-  ansible -i environments/development --connection=docker frontend -m ping
-  ansible -i environments/development --connection=docker backend -m ping
+  ansible -i environments/development --connection=docker frontend -m ansible.builtin.ping
+  ansible -i environments/development --connection=docker backend -m ansible.builtin.ping
   ```
-- [ ] **Extra credit**: Start a _third_ container with a specific nasme (e.g. `web1`), add it to the inventory, and then use Ansible to `ping` all the servers in the `frontend` group. Here are the terminal commands you'll need:
+- [ ] **Extra credit**: Start a _third_ container with a specific name (e.g. `web1`), add it to the inventory, and then use Ansible to `ansible.builtin.ping` all the servers in the `frontend` group. Here are the terminal commands you'll need:
 
   ```bash
   docker container run --rm --name web1 -d -t --network cac cac-with-ansible:1.0.0
-  ansible -i environments/development --connection=docker frontend -m ping
+  ansible -i environments/development --connection=docker frontend -m ansible.builtin.ping
   ```
 
 ---
@@ -250,7 +245,7 @@ So far you've used `ansible`, `ansible-doc` and `ansible-inventory`.
   ```bash
   ansible -i environments/development --connection=docker <group-name> --list-hosts
   ```
-- [ ] **Remove the newly entered (`us_east`, `us_west` etc) groups**
+- [ ] **Remove the newly entered (`us_east`, `us_west` etc) groups** and revert to just having the `frontend` and `backend` groups
 
 ---
 ## Discussion: Variables, specifically inventory variables
@@ -404,7 +399,7 @@ Let's convert `ansible -i environments/development backend -m ansible.builtin.de
 Things to note:
 - We are targeting the `backend` group
 - We are invoking the `ansible.builtin.debug` module
-- We are supplying it the argument `var=foo`
+- We are supplying it the argument `var: foo`
 
 Here's the play
 
@@ -508,7 +503,7 @@ Here's what a playbook, consisting of two plays looks like:
   tasks:
     - name: Install Java 21
       ansible.builtin.apt:
-        name: openjdk-21-jdk=21.0.5+11-1ubuntu1~22.04
+        name: openjdk-21-jdk=21.0.7+6~us1-0ubuntu1~22.04
         state: present
         update_cache: yes
       # Remember the `--become` (or `-b`) flag you passed on the command-line earlier?
@@ -520,13 +515,13 @@ Here's what a playbook, consisting of two plays looks like:
 ## Exercise: Let's make a useful playbook
 
 - In `test-playbook.yaml`
-  - [ ] For the `Install Nginx` play, add a new task that installs `nginx` (version `1.18.0-6ubuntu14.5`) in the `frontend` hosts (See above for hints)
+  - [ ] For the `Install Nginx` play, add a new task that installs `nginx` (version `1.18.0-6ubuntu14.6`) in the `frontend` hosts (See above for hints)
     - **Note** You will need to _become_ superuser
   - [ ] Add a **second play**
     - [ ] Give it the `name` `Install Java`
     - [ ] Target the `backend` group
       - **Write one task** (Be sure to give it a good name!)
-        - [ ] Install `openjdk-21-jdk` (version `21.0.5+11-1ubuntu1~22.04`) (See above for hints)
+        - [ ] Install `openjdk-21-jdk` (version `21.0.7+6~us1-0ubuntu1~22.04`) (See above for hints)
 - [ ] Use `ansible-playbook -i environments/development/ test-playbook.yaml` run your playbook
 - Execute the following to make sure you got everything installed correctly:
 
@@ -872,7 +867,7 @@ We've already created the `app-configure` role and we are using it in `backend-s
 # for didactic perspectives
 - name: Install curl
   ansible.builtin.apt:
-    name: curl=7.81.0-1ubuntu1.19
+    name: curl=7.81.0-1ubuntu1.20
     state: present
     update_cache: yes
   become: true
@@ -1031,7 +1026,7 @@ Ansible supports two kinds of datastructures—lists and dictionaries, along wit
 ## Exercise: Using Ansible data-structures
 
 - [ ] Refactor `app-configure` roles `tasks/main.yml` and combine the two `apt` tasks that install `wget` and `curl` into one using a loop over a list of hashes.
-  Here's an example: `{ name: 'curl', value: '7.81.0-1ubuntu1.19' }`
+  Here's an example: `{ name: 'curl', value: '7.81.0-1ubuntu1.20' }`
 - [ ] Use `ansible-playbook -i environments/development/ --extra-vars GITHUB_TOKEN='password' backend-setup.yaml` where you replace `password` with the token I give you
 - [ ] Visit http://localhost:8080/greeting?name=ansible and make sure you see the message `Hello ansible` (Change the `name` param to anything you like)
 - **NOTE** This is an exercise.
@@ -1042,7 +1037,7 @@ Ansible supports two kinds of datastructures—lists and dictionaries, along wit
     ansible.builtin.apt:
       name:
         - wget=1.21.2-2ubuntu1.1
-        - curl=7.81.0-1ubuntu1.19
+        - curl=7.81.0-1ubuntu1.20
       state: present
       update_cache: yes
     become: true
@@ -1110,12 +1105,12 @@ vault_identity_list = cac-vault-password
 ❯ ansible-vault encrypt_string --name GITHUB_TOKEN password
 Encryption successful
 GITHUB_TOKEN: !vault |
-          $ANSIBLE_VAULT;1.1;AES256
-          35333965346166353631363733363664323562396164333837316265323065356338366138326435
-          6436363163396634663335633163666330643363383935630a386562393630333866623162326565
-          38383338653837613134323937643537356638336362623938653230666336326264393263663939
-          6336626233333634610a393334373432363832383565346338303932353362653066643236393364
-          3733
+    $ANSIBLE_VAULT;1.1;AES256
+    35333965346166353631363733363664323562396164333837316265323065356338366138326435
+    6436363163396634663335633163666330643363383935630a386562393630333866623162326565
+    38383338653837613134323937643537356638336362623938653230666336326264393263663939
+    6336626233333634610a393334373432363832383565346338303932353362653066643236393364
+    3733
 ```
 
 You can now store this as a variable in your repository, and all you need is to supply it the correct password file.
@@ -1197,19 +1192,3 @@ And finally, you can limit which hosts get affected (assuming you had more than 
 
 ---
 ## Thanks
-
----
-## Discussion: Helpful tips
-
-```bash
-# if you messed up a container, just restart it!
-# in our case we only have two containers—web and app
-docker container stop <name-of-container>
-
-# to restart the web container
-docker container run --rm --name web -d -t -p 8080:80 --network cac cac-with-ansible:1.0.0
-
-# to restart the app container
-docker container run --rm --name app -d -t -p 9000:8080 --network cac cac-with-ansible:1.0.0
-```
-

@@ -20,7 +20,9 @@ You will need the following installed
 
 ### Set up
 
-- `docker build -t cac-with-ansible:1.0.0 .`
+- `cd` to where you've cloned this project
+- Run, `docker build -t cac-with-ansible:1.0.0 docker-setup`
+- You can confirm this succeeded by running `docker image ls cac-with-ansible:1.0.0`
 
 ### Testing your installation
 
@@ -33,7 +35,7 @@ Next, we start our two target servers, making sure we expose the necessary ports
 - `docker container run --name web -d -t -p 8080:80 --network cac cac-with-ansible:1.0.0`
 
 Let's make sure they are up
-- `docker container ls`
+- `docker container ls --filter "NAME=app" --filter "NAME=web"`
 
 This should reveal the two containers running, with the names `app` and `web`.
 
