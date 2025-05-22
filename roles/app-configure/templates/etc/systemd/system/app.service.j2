@@ -6,8 +6,8 @@ After=network.target
 Type=simple
 WorkingDirectory=/home/vagrant/app
 ExecStart=/usr/bin/java \
-  -Xms499m \
-  -Xmx999m \
+  -Xms{{ (ansible_memory_mb.real.total/32) | int }}m \
+  -Xmx{{ (ansible_memory_mb.real.total/16) | int }}m \
   -jar cac-with-ansible-backend.jar
 TimeoutSec=15
 Restart=always
