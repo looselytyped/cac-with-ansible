@@ -14,7 +14,7 @@
   tasks:
     - name: Install Java 21
       ansible.builtin.apt:
-        name: openjdk-21-jdk=21.0.5+11-1ubuntu1~22.04
+        name: openjdk-21-jdk=21.0.7+6~us1-0ubuntu1~22.04
         state: present
         update_cache: yes
       become: true
