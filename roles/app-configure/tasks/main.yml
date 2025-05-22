@@ -1,6 +1,6 @@
 ---
 # roles/app-configure/tasks/main.yml
-- name: Install wget
+- name: Install libraries
   ansible.builtin.apt:
     name: wget=1.21.2-2ubuntu1.1
     state: present
@@ -11,10 +11,13 @@
 # for didactic perspectives
 - name: Install curl
   ansible.builtin.apt:
-    name: curl=7.81.0-1ubuntu1.20
+    name: "{{ item.name }}={{ item.version }}"
     state: present
     update_cache: yes
   become: true
+  with_items:
+    - { name: 'wget', version: '1.21.2-2ubuntu1.1' }
+    - { name: 'curl', version: '7.81.0-1ubuntu1.20' }
 
 # from https://docs.aws.amazon.com/corretto/latest/corretto-21-ug/generic-linux-install.html#debian-install-instruct
 - name: Set up repositories
