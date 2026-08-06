@@ -54,7 +54,7 @@ slidenumbers: true
 ```bash
 # Assuming your followed the instructions in the README in this repository,
 # this should list out two containers
-docker container ls --filter "NAME=app" --filter "NAME=web"
+docker container ls --filter "NAME=app" --filter "NAME=web" --filter "NAME=app"
 
 # if you don't see a result, please revisit the README.md for set up instructions
 ```
@@ -137,7 +137,7 @@ You just used `ansible-doc`—we'll be seeing more as we continue through today'
 ## Discussion: Keeping track of your inventory
 
 Ansible aims to make things easier.
-Managing your inventory in one such thing.
+Managing your inventory is one such thing.
 Rather than having to remember the names and/or IP addresses of your servers, you can declare an "inventory" for Ansible to use, and then target specific servers listed in that inventory.
 
 An Ansible inventory is typically written in a (slightly convoluted) INI format.
@@ -182,7 +182,6 @@ ansible -i environments/development --connection=docker frontend -m ansible.buil
 - [ ] Populate it with a group called `backend` with one entry `app`
 
   ```bash
-  docker container run --rm --name web1 -d -t --network cac cac-with-ansible:1.0.0
   ansible -i environments/development --connection=docker frontend -m ansible.builtin.ping
   ansible -i environments/development --connection=docker backend -m ansible.builtin.ping
   ```
@@ -386,7 +385,7 @@ A playbook, on the other hand, consists of multiple plays.
  │   Playbook   ├──────<│    Play      ├─────<│    Hosts     │
  └──────────────┘       └──────┬───────┘      └──────────────┘
                               1│
-                              n^
+                              m^
                         ┌──────────────┐1    1┌──────────────┐
                         │    Task      ├─────►│    Module    │
                         └──────────────┘      └──────────────┘
@@ -407,7 +406,7 @@ Here's the play
 # test-playbook.yaml
 - name: Install nginx
   hosts: frontend
-  # a play connects a set of hosts, to a list of tasks
+  # a play connects a set of hosts, to a list of tasks (n hosts x m tasks)
   tasks:
   - name: Print the value of a variable
     ansible.builtin.debug:
@@ -503,7 +502,7 @@ Here's what a playbook, consisting of two plays looks like:
   tasks:
     - name: Install Java 21
       ansible.builtin.apt:
-        name: openjdk-21-jdk=21.0.10+7-1~22.04
+        name: openjdk-21-jdk=21.0.11+10-1~22.04.2
         state: present
         update_cache: yes
       # Remember the `--become` (or `-b`) flag you passed on the command-line earlier?
@@ -515,13 +514,13 @@ Here's what a playbook, consisting of two plays looks like:
 ## Exercise: Let's make a useful playbook
 
 - In `test-playbook.yaml`
-  - [ ] For the `Install Nginx` play, add a new task that installs `nginx` (version `1.18.0-6ubuntu14.10`) in the `frontend` hosts (See above for hints)
+  - [ ] For the `Install Nginx` play, add a new task that installs `nginx` (version `1.18.0-6ubuntu14.18`) in the `frontend` hosts (See above for hints)
     - **Note** You will need to _become_ superuser
   - [ ] Add a **second play**
     - [ ] Give it the `name` `Install Java`
     - [ ] Target the `backend` group
       - **Write one task** (Be sure to give it a good name!)
-        - [ ] Install `openjdk-21-jdk` (version `21.0.10+7-1~22.04`) (See above for hints)
+        - [ ] Install `openjdk-21-jdk` (version `21.0.11+10-1~22.04.2`) (See above for hints)
 - [ ] Use `ansible-playbook -i environments/development/ test-playbook.yaml` run your playbook
 - Execute the following to make sure you got everything installed correctly:
 
@@ -858,7 +857,7 @@ We've already created the `app-configure` role and we are using it in `backend-s
 # roles/app-configure/tasks/main.yml
 - name: Install wget
   ansible.builtin.apt:
-    name: wget=1.21.2-2ubuntu1.1
+    name: wget=1.21.2-2ubuntu1.4
     state: present
     update_cache: yes
   become: true
@@ -867,7 +866,7 @@ We've already created the `app-configure` role and we are using it in `backend-s
 # for didactic perspectives
 - name: Install curl
   ansible.builtin.apt:
-    name: curl=7.81.0-1ubuntu1.20
+    name: curl=7.81.0-1ubuntu1.25
     state: present
     update_cache: yes
   become: true
@@ -1026,7 +1025,7 @@ Ansible supports two kinds of datastructures—lists and dictionaries, along wit
 ## Exercise: Using Ansible data-structures
 
 - [ ] Refactor `app-configure` roles `tasks/main.yml` and combine the two `apt` tasks that install `wget` and `curl` into one using a loop over a list of hashes.
-  Here's an example: `{ name: 'curl', value: '7.81.0-1ubuntu1.20' }`
+  Here's an example: `{ name: 'curl', value: '7.81.0-1ubuntu1.25' }`
 - [ ] Use `ansible-playbook -i environments/development/ --extra-vars GITHUB_TOKEN='password' backend-setup.yaml` where you replace `password` with the token I give you
 - [ ] Visit http://localhost:8080/greeting?name=ansible and make sure you see the message `Hello ansible` (Change the `name` param to anything you like)
 - **NOTE** This is an exercise.
@@ -1036,8 +1035,8 @@ Ansible supports two kinds of datastructures—lists and dictionaries, along wit
   - name: Install libraries
     ansible.builtin.apt:
       name:
-        - wget=1.21.2-2ubuntu1.1
-        - curl=7.81.0-1ubuntu1.20
+        - wget=1.21.2-2ubuntu1.4
+        - curl=7.81.0-1ubuntu1.25
       state: present
       update_cache: yes
     become: true
